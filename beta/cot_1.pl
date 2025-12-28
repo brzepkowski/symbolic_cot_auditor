@@ -7,22 +7,30 @@
 % Steps (the CoT trace)
 % -------------------------
 
-step(1, given, apples_total(10)).
-step(2, given, apples_eaten(3)).
+step(1, given, apples_joey(10)).
+step(2, given, apples_joey_eaten(3)).
 
-step(3, inference, rule_remaining_apples, apples_remaining(7)).
-rule(rule_remaining_apples, subtraction_rule, [apples_total(_), apples_eaten(_)], apples_remaining(_)).
-normalize(apples_total(X), minuend(X)).
-normalize(apples_eaten(Y), subtrahend(Y)).
-normalize(apples_remaining(Z), difference(Z)).
+step(3, inference, rule_joey_eaten_apples, apples_joey_remaining(7)).
+rule(rule_joey_eaten_apples, subtraction_rule, [apples_joey(_), apples_joey_eaten(_)], apples_joey_remaining(_)).
+normalize(apples_joey(X), minuend(X)).
+normalize(apples_joey_eaten(Y), subtrahend(Y)).
+normalize(apples_joey_remaining(Z), difference(Z)).
 
-step(4, given, apples_new(8)).
+step(4, given, apples_chandler(8)).
 
-step(5, inference, rule_new_apples, apples_final(15)).
-rule(rule_new_apples, addition_rule, [apples_remaining(_), apples_new(_)], apples_final(_)).
-normalize(apples_remaining(X), addend_0(X)).
-normalize(apples_new(Y), addend_1(Y)).
-normalize(apples_final(Z), sum(Z)).
+step(5, inference, rule_chandler_new_apples, apples_daily(15)).
+rule(rule_chandler_new_apples, addition_rule, [apples_joey_remaining(_), apples_chandler(_)], apples_daily(_)).
+normalize(apples_joey_remaining(X), addend_0(X)).
+normalize(apples_chandler(Y), addend_1(Y)).
+normalize(apples_daily(Z), sum(Z)).
+
+step(6, given, days_in_week(7)).
+
+step(7, inference, rule_weekly_apples, apples_weekly(105)).
+rule(rule_weekly_apples, multiplication_rule, [apples_daily(_), days_in_week(_)], apples_weekly(_)).
+normalize(apples_daily(X), factor_0(X)).
+normalize(days_in_week(Y), factor_1(Y)).
+normalize(apples_weekly(Z), product(Z)).
 
 % -------------------------
 % Derivability
@@ -54,16 +62,10 @@ valid_schema(addition_rule,
     sum(Z)) :-
     Z #= X + Y.
 
-% valid_schema(multiplication_rule,
-%     [count(N), value(V)],
-%     total(T)) :-
-%     T #= N * V.
-
-% valid_schema(average_rule,
-%     [sum(S), count(N)],
-%     average(A)) :-
-%     N #> 0,
-%     A * N #= S.
+valid_schema(multiplication_rule,
+    [factor_0(X), factor_1(Y)],
+    product(Z)) :-
+    Z #= X * Y.
 
 % -------------------------
 % Validators
