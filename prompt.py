@@ -97,6 +97,11 @@ INPUT CoT:
 <think>
 {cot}
 </think>
+
+IMPORTANT:
+1. DON'T ADD ANY REASONING STEPS, WHICH ARE NOT PRESENT IN THE CoT!
+2. IF THERE IS SOME REFERENCE TO A FACT, WHICH SHOULD BE ALREADY KNOWN IN SOME INFERENCE, DON'T ADD step(StepId, given, MissingFact).
+3. DON'T FIX ANY ERRORS, WHICH ARE PRESENT IN THE CoT!
     """
 
 if __name__ == "__main__":
@@ -104,7 +109,7 @@ if __name__ == "__main__":
 Julian is writing a comic book. On average, his story has 280 frames per page. In his 25-page book, 10 pages have 305 frames, 7 pages have 250 frames, and the remaining pages have the average number of frames. How many frames will there be in total in his comic book?
     """
 
-    cot = r"""
+    cot_correct = r"""
 First, let's calculate the total number of frames for the pages that don't have the average number of frames.
 
 For the 10 pages with 305 frames each:
@@ -128,4 +133,52 @@ Now, let's add up all the frames:
 So, there will be a total of $\boxed{7040}$  frames in Julian's comic book.
     """
 
-    print(prompt(problem, cot))
+    # Below I removed the following substring:
+    # Now, let's find out how many pages have the average number of frames. Julian's book has 25 pages in total, and we already know the frame count for 17 of them (10 with 305 frames and 7 with 250 frames).
+    # 25 pages - 10 pages - 7 pages = 8 pages
+    # These 8 pages have the average number of frames, which is 280 frames per page.
+    # 8 pages * 280 frames/page = 2240 frames
+    cot_missing_step = r"""
+First, let's calculate the total number of frames for the pages that don't have the average number of frames.
+
+For the 10 pages with 305 frames each:
+10 pages * 305 frames/page = 3050 frames
+
+For the 7 pages with 250 frames each:
+7 pages * 250 frames/page = 1750 frames
+
+Now, let's add up all the frames:
+
+3050 frames (from the 10 pages) + 1750 frames (from the 7 pages) + 2240 frames (from the 8 pages) = 7040 frames
+
+So, there will be a total of $\boxed{7040}$  frames in Julian's comic book.
+    """
+
+    # Below I replaced all occurences of "8 pages" with "3 pages"
+    cot_wrong_calculation = r"""
+First, let's calculate the total number of frames for the pages that don't have the average number of frames.
+
+For the 10 pages with 305 frames each:
+10 pages * 305 frames/page = 3050 frames
+
+For the 7 pages with 250 frames each:
+7 pages * 250 frames/page = 1750 frames
+
+Now, let's find out how many pages have the average number of frames. Julian's book has 25 pages in total, and we already know the frame count for 17 of them (10 with 305 frames and 7 with 250 frames).
+
+25 pages - 10 pages - 7 pages = 3 pages
+
+These 3 pages have the average number of frames, which is 280 frames per page.
+
+3 pages * 280 frames/page = 2240 frames
+
+Now, let's add up all the frames:
+
+3050 frames (from the 10 pages) + 1750 frames (from the 7 pages) + 2240 frames (from the 3 pages) = 7040 frames
+
+So, there will be a total of $\boxed{7040}$  frames in Julian's comic book.
+    """
+
+    # print(prompt(problem, cot_correct))
+    print(prompt(problem, cot_missing_step))
+    # print(prompt(problem, cot_wrong_calculation))
