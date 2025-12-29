@@ -8,60 +8,41 @@
 % Steps (the CoT trace)
 % -------------------------
 
-step(1, given, average_frames_per_page(280)).
-step(2, given, total_pages(25)).
-
-step(3, given, pages_with_305_frames(10)).
-step(4, given, frames_per_305_page(305)).
-
-step(5, inference, rule_frames_305_total, frames_305_total(3050)).
-rule(rule_frames_305_total, multiplication_rule, [pages_with_305_frames(_), frames_per_305_page(_)], frames_305_total(_)).
+step(1, given, pages_with_305_frames(10)).
+step(2, given, frames_per_page_305(305)).
+step(3, inference, rule_frames_305_pages, total_frames_305_pages(3050)).
+rule(rule_frames_305_pages, multiplication_rule, [pages_with_305_frames(_), frames_per_page_305(_)], total_frames_305_pages(_)).
 normalize(pages_with_305_frames(X), factor_0(X)).
-normalize(frames_per_305_page(Y), factor_1(Y)).
-normalize(frames_305_total(Z), product(Z)).
+normalize(frames_per_page_305(Y), factor_1(Y)).
+normalize(total_frames_305_pages(Z), product(Z)).
 
-step(6, given, pages_with_250_frames(7)).
-step(7, given, frames_per_250_page(250)).
-
-step(8, inference, rule_frames_250_total, frames_250_total(1750)).
-rule(rule_frames_250_total, multiplication_rule, [pages_with_250_frames(_), frames_per_250_page(_)], frames_250_total(_)).
+step(4, given, pages_with_250_frames(7)).
+step(5, given, frames_per_page_250(250)).
+step(6, inference, rule_frames_250_pages, total_frames_250_pages(1750)).
+rule(rule_frames_250_pages, multiplication_rule, [pages_with_250_frames(_), frames_per_page_250(_)], total_frames_250_pages(_)).
 normalize(pages_with_250_frames(X), factor_0(X)).
-normalize(frames_per_250_page(Y), factor_1(Y)).
-normalize(frames_250_total(Z), product(Z)).
+normalize(frames_per_page_250(Y), factor_1(Y)).
+normalize(total_frames_250_pages(Z), product(Z)).
 
-step(9, inference, rule_remaining_after_305, pages_after_305(15)).
-rule(rule_remaining_after_305, subtraction_rule, [total_pages(_), pages_with_305_frames(_)], pages_after_305(_)).
-normalize(total_pages(X), minuend(X)).
-normalize(pages_with_305_frames(Y), subtrahend(Y)).
-normalize(pages_after_305(Z), difference(Z)).
-
-step(10, inference, rule_remaining_pages, remaining_pages(3)).
-rule(rule_remaining_pages, subtraction_rule, [pages_after_305(_), pages_with_250_frames(_)], remaining_pages(_)).
-normalize(pages_after_305(X), minuend(X)).
-normalize(pages_with_250_frames(Y), subtrahend(Y)).
-normalize(remaining_pages(Z), difference(Z)).
-
-step(11, inference, rule_frames_average_total, frames_average_total(2240)).
-rule(rule_frames_average_total, stated_multiplication_rule, [remaining_pages(_), average_frames_per_page(_)], frames_average_total(_)).
+step(7, given_without_justification, remaining_pages(8)).  % Developer note: LLM added this line instead of "step(7, given, remaining_pages(8))."!
+step(8, given, average_frames_per_page(280)).
+step(9, inference, rule_frames_remaining_pages, total_frames_remaining_pages(2240)).
+rule(rule_frames_remaining_pages, multiplication_rule, [remaining_pages(_), average_frames_per_page(_)], total_frames_remaining_pages(_)).
 normalize(remaining_pages(X), factor_0(X)).
 normalize(average_frames_per_page(Y), factor_1(Y)).
-normalize(frames_average_total(Z), product(Z)).
+normalize(total_frames_remaining_pages(Z), product(Z)).
 
-step(12, inference, rule_sum_partial_frames, partial_frames_sum(4800)).
-rule(rule_sum_partial_frames, addition_rule, [frames_305_total(_), frames_250_total(_)], partial_frames_sum(_)).
-normalize(frames_305_total(X), addend_0(X)).
-normalize(frames_250_total(Y), addend_1(Y)).
-normalize(partial_frames_sum(Z), sum(Z)).
+step(10, inference, rule_sum_305_and_250, partial_sum_305_250(4800)).
+rule(rule_sum_305_and_250, addition_rule, [total_frames_305_pages(_), total_frames_250_pages(_)], partial_sum_305_250(_)).
+normalize(total_frames_305_pages(X), addend_0(X)).
+normalize(total_frames_250_pages(Y), addend_1(Y)).
+normalize(partial_sum_305_250(Z), sum(Z)).
 
-step(13, inference, rule_total_frames, total_frames(7040)).
-rule(rule_total_frames, addition_rule, [partial_frames_sum(_), frames_average_total(_)], total_frames(_)).
-normalize(partial_frames_sum(X), addend_0(X)).
-normalize(frames_average_total(Y), addend_1(Y)).
+step(11, inference, rule_total_frames, total_frames(7040)).
+rule(rule_total_frames, addition_rule, [partial_sum_305_250(_), total_frames_remaining_pages(_)], total_frames(_)).
+normalize(partial_sum_305_250(X), addend_0(X)).
+normalize(total_frames_remaining_pages(Y), addend_1(Y)).
 normalize(total_frames(Z), sum(Z)).
-
-valid_schema(stated_multiplication_rule,
-    [factor_0(_), factor_1(_)],
-    product(_)).
 
 % -------------------------
 % Derivability
@@ -129,7 +110,7 @@ valid_step(StepID) :-
 % -------------------------
 
 audit :-
-    forall(
+    forall( 
         step(S, inference, _, _),
         (valid_step(S) -> 
             format('✓ Step ~w (inference) is valid~n', [S])

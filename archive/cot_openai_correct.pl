@@ -2,6 +2,7 @@
 :- discontiguous step/4.
 :- discontiguous rule/4.
 :- discontiguous normalize/2.
+:- discontiguous valid_schema/3.
 
 % -------------------------
 % Steps (the CoT trace)
