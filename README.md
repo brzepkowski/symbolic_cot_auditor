@@ -1,5 +1,9 @@
 # CoT logical errors detector
 
+# 0. Project description
+
+Detailed description of the whole project can be found [here](https://docs.google.com/document/d/1VtXUsI-lF3kwZ3vPtZ1v1O8QlGuxhXxrAw1A6WZfzT4/edit?usp=sharing).
+
 # 1. Input math problem
 
 To test the pipeline I used the following example from the [NuminaMath database](https://huggingface.co/datasets/AI-MO/NuminaMath-CoT/viewer/default/train?views%5B%5D=train&row=6):
